@@ -1,0 +1,155 @@
+#!/bin/bash
+# based on SalineOS GrubDoctor
+LC_ALL=C
+mkdir -p /tmp/remmnt/Target
+GrubDir="/tmp/remmnt/Target"
+
+Question='yad --timeout=10 --text-align=fill --borders=6 --skip-taskbar --sticky --wrap --center --image=gtk-dialog-question --button=gtk-no:1 --button=Si:0 --title="Grub Doctor" --window-icon=/usr/share/pixmaps/grub-doctor.png'
+
+Info='yad --text-align=fill --borders=6 --skip-taskbar --sticky --center --title="Grub Doctor" --window-icon=/usr/share/pixmaps/grub-doctor.png'
+
+"$Question" --width=200 --text="Esta aplicacion restaurara el boot-loader de su sistema. (No compatible con sistemas EFI) ¿Desea continuar?"
+
+if [ "$?" != "0" ]; then
+	exit 1
+fi
+
+Drives=$(cat /proc/partitions | grep -v loop | grep -v "^$" | grep -v sr | grep -v name | grep -v zram | awk '{ print $4}')
+
+for i in $Drives; do
+	PartDrive="$i"
+	PartDriveSize=$(grep -m 1 "$i" /proc/partitions | awk '{print $3}')
+	if [ "$(echo "$PartDrive" | grep [0-9] )" != "" ]; then
+		if [ "$PartDriveMenu" = "" ]; then
+			PartDriveMenu=("$PartDrive")
+		else
+			PartDriveMenu=("${PartDriveMenu[@]}" "$PartDrive")
+		fi
+	fi
+	if [ "$(echo "$PartDrive" | grep [0-9] )" = "" ]; then
+		GrubMenu=("${GrubMenu[@]}" "$PartDrive" "MBR del disco")
+	fi
+done
+
+GrubMenu=("${GrubMenu[@]}" "root" "Particion raiz (avanzado)")
+
+GetRootPart (){
+RootPart=$(yad --text-align=fill --borders=6 --sticky --no-click --center --height="300" --list --window-icon="/usr/share/pixmaps/grub-doctor.png" --title="Grub Doctor" --column="Nombre" --button="Salir":3 --button=$"gtk-ok:2" --text="Seleccione la particion raiz del sistema que desea reparar." "${PartDriveMenu[@]}")
+ret="$?"
+
+if [ "$ret" = "3" ]; then
+	"$Question" --text="¿Esta seguro de querer cancelar la instalacion?"
+  	if [ "$?" = "0" ]; then
+   		exit 0
+	else
+   		GetRootPart
+		exit 0
+	fi
+elif [ "$ret" = "252" ]; then
+	GetRootPart
+	exit 0 
+elif [ "$RootPart" = "" ]; then
+	$Info --text="No selecciono una particion, intente de nuevo." --button=$"gtk-ok:1"
+	GetRootPart
+fi
+RootPart=$(echo "$RootPart" | awk -F '|' '{print $1}')
+}
+
+GetRootPart
+
+GetGrubLocation (){
+GrubLocation=""
+GrubLocation=$(yad --text-align=fill --borders=6 --sticky --no-click --center --list --window-icon="/usr/share/pixmaps/grub-doctor.png" --title="Grub Doctor" --column="Nombre" --column="Descripcion" --height="300" --width="275" --wrap --button="Salir":3 --button=$"gtk-ok:2" --text="   Seleccione donde se instalara grub.   \n" "${GrubMenu[@]}")
+
+ret="$?"
+
+if [ "$ret" = "3" ]; then
+	"$Question" --text="¿Esta seguro de querer cancelar la instalacion?"
+	if [ "$?" = "0" ]; then
+		exit 0
+	else
+		GetGrubLocation
+		exit 0
+	fi
+elif [ "$ret" = "252" ]; then
+	"$Question" --text="¿Esta seguro de querer cancelar la instalacion?"
+	if [ "$?" = "0" ]; then
+		exit 0
+	else
+		GetGrubLocation
+		exit 0
+	fi
+elif [ "$GrubLocation" = "" ]; then
+	$Info --text="No selecciono ninguna ubicacion, intente de nuevo." --button=$"gtk-ok:1"
+	GetGrubLocation
+	exit 0
+fi
+
+GrubLocation=$(echo "$GrubLocation" | awk -F '|' '{print $1}')
+
+if [ "$GrubLocation" = "root" ]; then
+	GrubLocation="/dev/$RootPart"
+else
+	GrubLocation="/dev/$GrubLocation"
+fi
+}
+
+GetGrubLocation
+
+"$Question" --text="Grub se instalara en "$GrubLocation"\n\n¿Desea continuar con la operacion?"
+
+if [ "$?" = "1" ]; then
+	$Info --text="Operacion cancelada" --button=$"gtk-ok:1"
+	exit 0
+fi
+
+tail -f /usr/bin/grub-doctor | yad --skip-taskbar --sticky --center --pulsate --progress --auto-kill --title="Grub Doctor" --no-buttons --window-icon=/usr/share/pixmaps/grub-doctor.png --progress-text="Instalando grub...Por favor espere" &
+
+GrubTest1=$(mount | grep ' / ')
+GrubTest2=$(blkid /dev/"$RootPart" | awk -F 'UUID="' '{print $2}' | awk -F '"' '{print $1}')
+GrubTest3=$(echo "$GrubTest1" | grep "$GrubTest2")
+
+if [ "$GrubTest3" = "" ]; then
+	umount -fl "$GrubDir"
+	umount -fl /dev/$RootPart
+	sleep 2
+	mount /dev/$RootPart $GrubDir -o rw
+
+	if [ "$(mount | grep /dev/$RootPart | awk '{print $3}')" != "/tmp/remmnt/Target" ]; then
+		if [ "$GrubTest3" = "" ]; then
+			killall -KILL tail
+			yad --text-align=fill --borders=6 --width="250" --wrap --window-icon="/usr/share/pixmaps/grub-doctor" --title="Grub Doctor" --text="Fallo al montar $RootPart, asegurese de que no haya archivos en uso en la particion." --button="Salir":1
+			exit 0
+		fi
+	fi
+
+	Arch1="$(file /usr/bin/file | awk '{print $3}')"
+	Arch2="$(file /tmp/remmnt/Target/usr/bin/file | awk '{print $3}')"
+
+	if [ "$Arch1" != "$Arch2" ]; then
+		killall -KILL tail
+		yad --text-align=fill --borders=6 --width="250" --wrap --window-icon="/usr/share/pixmaps/grub-doctor" --title="Grub Doctor" --text="La arquitectura de la sesion Live es diferente a la del sistema que desea recuperar. Para restaurar grub para $RootPart usted necesitara ejecutar Grub Doctor desde un sistema $Arch2" --button="Salir":1
+		umount -fl /tmp/remmnt/Target
+		exit 0
+	fi
+ 
+	mount -o bind /proc $GrubDir/proc
+	mount -o bind /dev  $GrubDir/dev
+	mount -o bind /sys  $GrubDir/sys
+ 
+	chroot $GrubDir grub-install --recheck --force --no-floppy "$GrubLocation"
+	chroot $GrubDir update-grub2
+
+	umount -fl $GrubDir/proc
+	umount -fl $GrubDir/dev
+	umount -fl $GrubDir/sys
+else
+	grub-install --recheck --no-floppy --force "$GrubLocation"
+	update-grub
+fi
+
+umount -fl /tmp/remmnt/Target
+TailPID=$(pgrep -f "tail -f /usr/bin/grub-doctor")
+kill $TailPID
+$Info --text="             Instalacion de grub finalizada.             \n" --button=$"gtk-ok:1"
+exit 0

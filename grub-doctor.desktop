@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Grub Doctor
+Comment=Utilidad para reparar el grub
+Icon=grub-doctor
+Exec=gksudo /usr/bin/grub-doctor
+Terminal=false
+MultipleArgs=false
+Type=Application
+Categories=GNOME;GTK;System;
