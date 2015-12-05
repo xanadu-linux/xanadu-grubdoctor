@@ -8,7 +8,7 @@ Question='yad --timeout=10 --text-align=fill --borders=6 --skip-taskbar --sticky
 
 Info='yad --text-align=fill --borders=6 --skip-taskbar --sticky --center --title="Grub Doctor" --window-icon=/usr/share/pixmaps/grub-doctor.png'
 
-"$Question" --width=200 --text="Esta aplicacion restaurara el boot-loader de su sistema. (No compatible con sistemas EFI) ¿Desea continuar?"
+$Question --width=200 --text="Esta aplicacion restaurara el boot-loader de su sistema. (No compatible con sistemas EFI) ¿Desea continuar?"
 
 if [ "$?" != "0" ]; then
 	exit 1
@@ -38,7 +38,7 @@ RootPart=$(yad --text-align=fill --borders=6 --sticky --no-click --center --heig
 ret="$?"
 
 if [ "$ret" = "3" ]; then
-	"$Question" --text="¿Esta seguro de querer cancelar la instalacion?"
+	$Question --text="¿Esta seguro de querer cancelar la instalacion?"
   	if [ "$?" = "0" ]; then
    		exit 0
 	else
@@ -64,7 +64,7 @@ GrubLocation=$(yad --text-align=fill --borders=6 --sticky --no-click --center --
 ret="$?"
 
 if [ "$ret" = "3" ]; then
-	"$Question" --text="¿Esta seguro de querer cancelar la instalacion?"
+	$Question --text="¿Esta seguro de querer cancelar la instalacion?"
 	if [ "$?" = "0" ]; then
 		exit 0
 	else
@@ -72,7 +72,7 @@ if [ "$ret" = "3" ]; then
 		exit 0
 	fi
 elif [ "$ret" = "252" ]; then
-	"$Question" --text="¿Esta seguro de querer cancelar la instalacion?"
+	$Question --text="¿Esta seguro de querer cancelar la instalacion?"
 	if [ "$?" = "0" ]; then
 		exit 0
 	else
@@ -96,7 +96,7 @@ fi
 
 GetGrubLocation
 
-"$Question" --text="Grub se instalara en "$GrubLocation"\n\n¿Desea continuar con la operacion?"
+$Question --text="Grub se instalara en "$GrubLocation"\n\n¿Desea continuar con la operacion?"
 
 if [ "$?" = "1" ]; then
 	$Info --text="Operacion cancelada" --button=$"gtk-ok:1"
