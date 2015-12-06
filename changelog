@@ -1,4 +1,16 @@
-commit 6b318a430c82400c05f6876ef428c49a11c9bf1a (HEAD, origin/master, origin/HEAD, master)
+commit 66b39692eff3f7b0dc292a4fb854ae2249625730 (HEAD, origin/master, origin/HEAD, master)
+Author: jose perez <sinfallas@gmail.com>
+Date:   Sun Dec 6 18:37:30 2015 -0430
+
+    * se agrega trap
+
+commit 12b2b483b17700293b36d481a06840a88e616df8
+Author: jose perez <sinfallas@gmail.com>
+Date:   Sun Dec 6 18:04:09 2015 -0430
+
+    * changelog
+
+commit 6b318a430c82400c05f6876ef428c49a11c9bf1a
 Author: jose perez <sinfallas@gmail.com>
 Date:   Sat Dec 5 00:54:43 2015 -0430
 
