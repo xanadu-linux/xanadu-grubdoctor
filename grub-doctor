@@ -1,6 +1,8 @@
 #!/bin/bash
 # based on SalineOS GrubDoctor
 LC_ALL=C
+trap "rm -f /run/$(basename $0).pid; exit" INT TERM EXIT
+echo "$BASHPID" > /run/$(basename $0).pid
 mkdir -p /tmp/remmnt/Target
 GrubDir="/tmp/remmnt/Target"
 
@@ -152,4 +154,6 @@ umount -fl /tmp/remmnt/Target
 TailPID=$(pgrep -f "tail -f /usr/bin/grub-doctor")
 kill $TailPID
 $Info --text="             Instalacion de grub finalizada.             \n" --button=$"gtk-ok:1"
+rm -f /run/$(basename $0).pid
+trap - INT TERM EXIT
 exit 0
