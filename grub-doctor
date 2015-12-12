@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # based on SalineOS GrubDoctor
 LC_ALL=C
 trap "rm -f /run/$(basename $0).pid; exit" INT TERM EXIT
 echo "$BASHPID" > /run/$(basename $0).pid
+source /usr/bin/variables
+nolive_check
 mkdir -p /tmp/remmnt/Target
 GrubDir="/tmp/remmnt/Target"
 

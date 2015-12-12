@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -eu
+LC_ALL=C
+if [[ "$EUID" != "0" ]]; then
+	yad --skip-taskbar --button="ACEPTAR":1 --fixed --center --text-align=fill --borders=6 --timeout=3 --title="ERROR" --text="ERROR: Debes ser root."
+	exit 1
+fi
+memoria=$(grep "MemTotal" /proc/meminfo | awk '{print $2}')
+cpu=$(lscpu | grep "MHz" | awk '{print $3}')
+miswap=$(fdisk -l | grep "swap" | awk '{print $1}')
+quien=$(who | cut -d' ' -f1 | sort | uniq)
+insta="apt -q update && apt -q -y --force-yes install"
+miyad='yad --skip-taskbar --button="ACEPTAR":1 --fixed --center --text-align=fill --borders=6'
+errores='yad --skip-taskbar --button="ACEPTAR":1 --fixed --center --text-align=fill --borders=6 --timeout=3 --title="ERROR"'
+advertencia='yad --skip-taskbar --button="ACEPTAR":1 --fixed --center --text-align=fill --borders=6 --title="ADVERTENCIA"'
+final='yad --skip-taskbar --button="ACEPTAR":1 --fixed --center --text-align=fill --borders=6 --timeout=3 --title="FINALIZADO"'
+progreso='yad --fixed --progress --pulsate --auto-kill --skip-taskbar --center'
+
+function espera () {
+	sleep 30 | $progreso --progress-text="Iniciando tor, por favor espere" --title="Tor"
+}
+
+function progress_2 () {
+	$progreso --progress-text="Instalando Software, esto proceso puede tomar varios minutos, por favor espere" --title="INSTALANDO"
+}
+
+function progress_limpiar_2 () {
+	$progreso --progress-text="Realizando limpieza" --title="LIMPIEZA"
+}
+
+function limpiar_1 () {
+	history -c
+	apt-get clean
+	rm -rf /var/cache/polipo/*
+	rm -rf /root/.local/share/Trash/*
+	rm -rf /home/*/.local/share/Trash/*
+	rm -rf /home/*/.cache/*
+}
+
+function live_check () {
+	if [[ -d /lib/live/mount/rootfs ]]; then
+		$errores --text="Este programa no se puede ejecutar en modo live."
+		exit 1
+	fi
+}
+
+function nolive_check () {
+	if ! [[ -d /lib/live/mount/rootfs ]]; then
+		$errores --text="Este programa debe ejecutarse en modo live."
+		exit 1
+	fi
+}
