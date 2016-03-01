@@ -1,4 +1,16 @@
-commit dc8f4caea970e9f03bad8df17b804102a71eb457 (HEAD, origin/master, origin/HEAD, master)
+commit 234e5bedf1a8ec68eea0c9f25059a8d52a57055b (HEAD, origin/master, origin/HEAD, master)
+Author: jose perez <sinfallas@gmail.com>
+Date:   Mon Feb 29 21:43:46 2016 -0430
+
+    * logo
+
+commit a3e62374e40244bbe3496cd1ba5e6a0cbbf9ac80
+Author: jose perez <sinfallas@gmail.com>
+Date:   Thu Dec 17 20:27:11 2015 -0430
+
+    * changelog
+
+commit dc8f4caea970e9f03bad8df17b804102a71eb457
 Author: jose perez <sinfallas@gmail.com>
 Date:   Sat Dec 12 01:08:47 2015 -0430
 
