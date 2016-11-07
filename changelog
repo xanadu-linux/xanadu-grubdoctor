@@ -1,10 +1,32 @@
-commit 70bbcddade762f3de534f1aa1829ca9891aab38c (HEAD, origin/master, origin/HEAD, master)
+commit 7a56bebef5ced8310d83479775b0707cabaa9cfa (HEAD, origin/master, origin/HEAD, master)
+Author: jose perez <sinfallas@gmail.com>
+Date:   Sun Nov 6 22:05:18 2016 -0400
+
+    * se agrega la funcion que permite reemplazar BURG
+    * si en la instalacion de disco GRUB esta mal instalado se reinstala para completar el proceso
+    * se faltan herramientas pregunta al usuario si desea instalar
+    * se modifca la estructura del codigo para hacerlo mas ordenado
+    * se agrega una comprobacion de conexion a internet
+
+commit ac2734dfea2547877a8739c4d0521dc4108e2922
+Author: Jose Perez <sinfallas@users.noreply.github.com>
+Date:   Tue Apr 19 20:22:16 2016 -0430
+
+    Update README.md
+
+commit d6e2df6935c29b037658eb4e653c7ef2796a5436
+Author: jose perez <sinfallas@gmail.com>
+Date:   Sun Apr 17 21:15:33 2016 -0430
+
+    * changelog
+
+commit 70bbcddade762f3de534f1aa1829ca9891aab38c
 Author: jose perez <sinfallas@gmail.com>
 Date:   Sun Apr 17 21:15:24 2016 -0430
 
     * zenodo
 
-commit 2b68419c1318d363309f982752479a4e1dac9ce2
+commit 2b68419c1318d363309f982752479a4e1dac9ce2 (tag: v0.1.4)
 Author: jose perez <sinfallas@gmail.com>
 Date:   Sat Apr 9 11:30:48 2016 -0430
 
