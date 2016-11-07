@@ -4,4 +4,4 @@
 [![DOI](https://zenodo.org/badge/4102/xanadu-linux/xanadu-grubdoctor.svg)](https://zenodo.org/badge/latestdoi/4102/xanadu-linux/xanadu-grubdoctor)
 [![Build Status](https://travis-ci.org/xanadu-linux/xanadu-grubdoctor.svg?branch=master)](https://travis-ci.org/xanadu-linux/xanadu-grubdoctor)
 
-grubdoctor para Xanadu GNU/Linux
+GrubDoctor para Xanadu GNU/Linux basado en "SalineOS GrubDoctor"
