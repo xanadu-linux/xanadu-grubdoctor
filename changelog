@@ -1,4 +1,16 @@
-commit 7a56bebef5ced8310d83479775b0707cabaa9cfa (HEAD, origin/master, origin/HEAD, master)
+commit 2b6168a8fe1385a769c05749f8dee6f6d3f50c96 (HEAD, origin/master, origin/HEAD, master)
+Author: jose perez <sinfallas@gmail.com>
+Date:   Thu Apr 20 14:03:10 2017 -0400
+
+    * se agrega otra opcion para detectar burg
+
+commit 6b4c074923a777992a94cf11a8e7f807120d80ef
+Author: jose perez <sinfallas@gmail.com>
+Date:   Sun Nov 6 22:06:54 2016 -0400
+
+    * changelog
+
+commit 7a56bebef5ced8310d83479775b0707cabaa9cfa
 Author: jose perez <sinfallas@gmail.com>
 Date:   Sun Nov 6 22:05:18 2016 -0400
 
