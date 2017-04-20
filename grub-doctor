@@ -54,15 +54,19 @@ post_ch (){
 	umount -fl $GrubDir/sys
 }
 
+mi_paquete (){
+	pre_ch
+	chroot $GrubDir apt-get -q update
+	chroot $GrubDir apt-get -y --force-yes install grub2 file
+	post_ch
+}
+
 mi_install (){
 	conexion
 	if [ "$miapt" = "1" ]; then
 		$Info --text="Se ha detectado que la instalacion de Linux en el disco no cuenta con las herramientas necesarias, ¿desea instalarlas?" --button=Aceptar:0 --button=Cancelar:1
 		if [[ $? = 0 ]]; then
-			pre_ch
-			chroot $GrubDir apt-get -q update
-			chroot $GrubDir apt-get install grub2 file
-			post_ch
+			mi_paquete
 		else
 			no_requisitos
 		fi
@@ -72,16 +76,13 @@ mi_install (){
 }
 
 comprobacion (){
-	if [[ -f /tmp/remmnt/Target/usr/bin/burg-mkimage ]]; then
+	if [[ -f /tmp/remmnt/Target/usr/bin/burg-mkimage ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep "burg" | awk '{print $1}' | head -1) = burg ]]; then
 		conexion
 		if [ "$miapt" = "1" ]; then
 			$Info --text="Se ha detectado BURG en su instalacion de Linux en disco, ¿desea reemplazarlo?" --button=Aceptar:0 --button=Cancelar:1
 			if [[ $? = 0 ]]; then
-				pre_ch
 				chroot $GrubDir apt-get -y purge burg burg-common burg-emu burg-pc burg-themes burg-themes-common
-				chroot $GrubDir apt-get -q update
-				chroot $GrubDir apt-get -y --force-yes install grub2 file
-				post_ch
+				mi_paquete
 			else
 				no_requisitos
 			fi
