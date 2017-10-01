@@ -10,7 +10,6 @@ exec 2>/var/log/$(basename $0).log
 source /usr/bin/variables
 nolive_check
 unset -v GrubLocation
-GrubLocation=""
 Arch1="$(file /usr/bin/file | awk '{print $3}')"
 Drives=$(cat /proc/partitions | grep -v loop | grep -v "^$" | grep -v sr | grep -v name | grep -v zram | awk '{ print $4}')
 GrubDir="/tmp/remmnt/Target"
