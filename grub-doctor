@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
+# Made by Sinfallas <sinfallas@yahoo.com>
+# Licence: GPL-2
 # based on SalineOS GrubDoctor
 LC_ALL=C
-trap "rm -f /run/$(basename $0).pid; exit" INT TERM EXIT
+IFS=" "
+trap "rm -f /run/$(basename $0).pid; exit" 0 1 2 3 15
 echo "$BASHPID" > /run/$(basename $0).pid
+exec 2>/var/log/$(basename $0).log
 source /usr/bin/variables
 nolive_check
-mkdir -p /tmp/remmnt/Target
+unset -v GrubLocation
+GrubLocation=""
 Arch1="$(file /usr/bin/file | awk '{print $3}')"
 Drives=$(cat /proc/partitions | grep -v loop | grep -v "^$" | grep -v sr | grep -v name | grep -v zram | awk '{ print $4}')
 GrubDir="/tmp/remmnt/Target"
-GrubLocation=""
 Info='yad --text-align=fill --borders=6 --skip-taskbar --sticky --center --title="Grub Doctor" --window-icon=/usr/share/pixmaps/grub-doctor.png'
 Question='yad --timeout=10 --text-align=fill --borders=6 --skip-taskbar --sticky --wrap --center --image=gtk-dialog-question --button=gtk-no:1 --button=Si:0 --title="Grub Doctor" --window-icon=/usr/share/pixmaps/grub-doctor.png'
-
-no_requisitos (){
-	$Info --text="La instalacion de Linux en su disco no cumple con los requisitos para continuar la operacion." --button=$"gtk-ok:1"
-	killtail
-	exit 1
-}
+mkdir -p "$GrubDir"
 
 killtail (){
 	TailPID=$(pgrep -f "tail -f /usr/bin/grub-doctor")
 	kill $TailPID
 	killall yad
+}
+
+no_requisitos (){
+	$Info --text="La instalacion de Linux en su disco no cumple con los requisitos para continuar la operacion." --button=$"gtk-ok:1"
+	killtail
+	exit 1
 }
 
 conexion (){
@@ -34,7 +39,7 @@ conexion (){
 	fi
 
 	if [ "$conex" = "1" ]; then
-		if [[ -f /tmp/remmnt/Target/usr/bin/apt-get ]]; then
+		if [[ -f $GrubDir/usr/bin/apt-get ]]; then
 			miapt="1"
 		else
 			miapt="0"
@@ -43,6 +48,9 @@ conexion (){
 }
 
 pre_ch (){
+	mkdir -p $GrubDir/proc
+	mkdir -p $GrubDir/dev
+	mkdir -p $GrubDir/sys
 	mount -o bind /proc $GrubDir/proc
 	mount -o bind /dev  $GrubDir/dev
 	mount -o bind /sys  $GrubDir/sys
@@ -76,7 +84,7 @@ mi_install (){
 }
 
 comprobacion (){
-	if [[ -f /tmp/remmnt/Target/usr/bin/burg-mkimage ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep "burg" | awk '{print $1}' | head -1) = burg ]]; then
+	if [[ -f $GrubDir/usr/bin/burg-mkimage ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep "burg" | awk '{print $1}' | head -1) = burg ]]; then
 		conexion
 		if [ "$miapt" = "1" ]; then
 			$Info --text="Se ha detectado BURG en su instalacion de Linux en disco, ¿desea reemplazarlo?" --button=Aceptar:0 --button=Cancelar:1
@@ -91,13 +99,13 @@ comprobacion (){
 		fi
 	fi
 
-	if [[ -f /tmp/remmnt/Target/usr/bin/file ]]; then
-		Arch2="$(file /tmp/remmnt/Target/usr/bin/file | awk '{print $3}')"
+	if [[ -f $GrubDir/usr/bin/file ]]; then
+		Arch2="$(file $GrubDir/usr/bin/file | awk '{print $3}')"
 	else
 		mi_install
 	fi
 
-	if ! [[ -f /tmp/remmnt/Target/usr/sbin/grub-install ]]; then
+	if ! [[ -f $GrubDir/usr/sbin/grub-install ]]; then
 		mi_install
 	fi
 }
@@ -201,7 +209,7 @@ if [ "$GrubTest3" = "" ]; then
 	sleep 2
 	mount /dev/$RootPart $GrubDir -o rw
 
-	if [ "$(mount | grep /dev/$RootPart | awk '{print $3}')" != "/tmp/remmnt/Target" ]; then
+	if [ "$(mount | grep /dev/$RootPart | awk '{print $3}')" != "$GrubDir" ]; then
 		if [ "$GrubTest3" = "" ]; then
 			yad --text-align=fill --borders=6 --width="250" --wrap --window-icon="/usr/share/pixmaps/grub-doctor" --title="Grub Doctor" --text="Fallo al montar $RootPart, asegurese de que no haya archivos en uso en la particion." --button="Salir":1
 			killtail
@@ -213,7 +221,7 @@ if [ "$GrubTest3" = "" ]; then
 
 	if [ "$Arch1" != "$Arch2" ]; then
 		yad --text-align=fill --borders=6 --width="250" --wrap --window-icon="/usr/share/pixmaps/grub-doctor" --title="Grub Doctor" --text="La arquitectura de la sesion Live es diferente a la del sistema que desea recuperar. Para restaurar grub para $RootPart usted necesitara ejecutar Grub Doctor desde un sistema $Arch2" --button="Salir":1
-		umount -fl /tmp/remmnt/Target
+		umount -fl $GrubDir
 		killtail
 		exit 1
 	fi
@@ -229,9 +237,8 @@ else
 	update-grub
 fi
 
-umount -fl /tmp/remmnt/Target
+umount -fl $GrubDir
 killtail
 $Info --text="             Instalacion de grub finalizada.             \n" --button=$"gtk-ok:1"
 rm -f /run/$(basename $0).pid
-trap - INT TERM EXIT
 exit 0
