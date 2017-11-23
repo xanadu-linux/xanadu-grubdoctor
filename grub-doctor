@@ -109,6 +109,8 @@ comprobacion (){
 	fi
 }
 
+post_ch
+
 $Question --width=200 --text="Esta aplicacion restaurara GRUB en su sistema. (No compatible con sistemas EFI) ¿Desea continuar?"
 
 if [[ $? != 0 ]]; then
