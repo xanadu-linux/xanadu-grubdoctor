@@ -1,4 +1,16 @@
-commit 564e8c8384af108e0dfb0147bba908a261ca6c1d (HEAD, origin/master, origin/HEAD, master)
+commit 7a1c209e8b97724f2e52c1ddca78e0a31f288036 (HEAD, origin/master, origin/HEAD, master)
+Author: jose perez <sinfallas@gmail.com>
+Date:   Wed Nov 22 21:37:25 2017 -0400
+
+    * se desmonta todo lo relacionado con grub antes de comenzar
+
+commit 59b9eab24783601e554b591aa8d31d5f8f2895db
+Author: jose perez <sinfallas@gmail.com>
+Date:   Wed Nov 22 21:35:26 2017 -0400
+
+    * changelog
+
+commit 564e8c8384af108e0dfb0147bba908a261ca6c1d
 Author: jose perez <sinfallas@gmail.com>
 Date:   Wed Nov 22 21:34:55 2017 -0400
 
