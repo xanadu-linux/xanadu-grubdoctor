@@ -104,7 +104,7 @@ comprobacion (){
 		mi_install
 	fi
 
-	if ! [[ -f $GrubDir/usr/sbin/grub-install ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep -w "grub2" | awk '{print $1}' | head -1) = grub2 ]]; then
+	if ! [[ -f $GrubDir/usr/sbin/grub-install ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep -w "grub2" | awk '{print $1}' | head -1) != grub2 ]]; then
 		mi_install
 	fi
 }
