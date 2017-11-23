@@ -1,4 +1,16 @@
-commit 9143eff6944cf8dec3c1b74695edae4ee0c275ed (HEAD, origin/master, origin/HEAD, master)
+commit 564e8c8384af108e0dfb0147bba908a261ca6c1d (HEAD, origin/master, origin/HEAD, master)
+Author: jose perez <sinfallas@gmail.com>
+Date:   Wed Nov 22 21:34:55 2017 -0400
+
+    * se coloca todas los comandos para desmontar en una sola funcion
+
+commit f34ff847ee198a3e5b800aae4fb97d0b1056dff6
+Author: jose perez <sinfallas@gmail.com>
+Date:   Sun Oct 1 17:43:55 2017 -0400
+
+    * changelog
+
+commit 9143eff6944cf8dec3c1b74695edae4ee0c275ed
 Author: jose perez <sinfallas@gmail.com>
 Date:   Sun Oct 1 17:43:41 2017 -0400
 
