@@ -18,8 +18,7 @@ Question='yad --timeout=10 --text-align=fill --borders=6 --skip-taskbar --sticky
 mkdir -p "$GrubDir"
 
 killtail (){
-	TailPID=$(pgrep -f "tail -f /usr/bin/grub-doctor")
-	kill $TailPID
+	kill $(cat /run/$(basename $0).pid)
 	killall yad
 }
 
@@ -38,7 +37,7 @@ conexion (){
 	fi
 
 	if [ "$conex" = "1" ]; then
-		if [[ -f $GrubDir/usr/bin/apt-get ]]; then
+		if [[ -f $GrubDir/usr/bin/apt-get ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep -w "apt" | awk '{print $1}' | head -1) = apt ]]; then
 			miapt="1"
 		else
 			miapt="0"
@@ -59,6 +58,7 @@ post_ch (){
 	umount -fl $GrubDir/proc
 	umount -fl $GrubDir/dev
 	umount -fl $GrubDir/sys
+	umount -fl $GrubDir
 }
 
 mi_paquete (){
@@ -83,7 +83,7 @@ mi_install (){
 }
 
 comprobacion (){
-	if [[ -f $GrubDir/usr/bin/burg-mkimage ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep "burg" | awk '{print $1}' | head -1) = burg ]]; then
+	if [[ -f $GrubDir/usr/bin/burg-mkimage ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep -w "burg" | awk '{print $1}' | head -1) = burg ]]; then
 		conexion
 		if [ "$miapt" = "1" ]; then
 			$Info --text="Se ha detectado BURG en su instalacion de Linux en disco, ¿desea reemplazarlo?" --button=Aceptar:0 --button=Cancelar:1
@@ -98,13 +98,13 @@ comprobacion (){
 		fi
 	fi
 
-	if [[ -f $GrubDir/usr/bin/file ]]; then
+	if [[ -f $GrubDir/usr/bin/file ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep -w "file" | awk '{print $1}' | head -1) = file ]]; then
 		Arch2="$(file $GrubDir/usr/bin/file | awk '{print $3}')"
 	else
 		mi_install
 	fi
 
-	if ! [[ -f $GrubDir/usr/sbin/grub-install ]]; then
+	if ! [[ -f $GrubDir/usr/sbin/grub-install ]] || [[ $(chroot $GrubDir dpkg --get-selections | grep -w "grub2" | awk '{print $1}' | head -1) = grub2 ]]; then
 		mi_install
 	fi
 }
@@ -203,7 +203,7 @@ GrubTest2=$(blkid /dev/"$RootPart" | awk -F 'UUID="' '{print $2}' | awk -F '"' '
 GrubTest3=$(echo "$GrubTest1" | grep "$GrubTest2")
 
 if [ "$GrubTest3" = "" ]; then
-	umount -fl "$GrubDir"
+	post_ch
 	umount -fl /dev/$RootPart
 	sleep 2
 	mount /dev/$RootPart $GrubDir -o rw
@@ -220,24 +220,22 @@ if [ "$GrubTest3" = "" ]; then
 
 	if [ "$Arch1" != "$Arch2" ]; then
 		yad --text-align=fill --borders=6 --width="250" --wrap --window-icon="/usr/share/pixmaps/grub-doctor" --title="Grub Doctor" --text="La arquitectura de la sesion Live es diferente a la del sistema que desea recuperar. Para restaurar grub para $RootPart usted necesitara ejecutar Grub Doctor desde un sistema $Arch2" --button="Salir":1
-		umount -fl $GrubDir
+		post_ch
 		killtail
 		exit 1
 	fi
  
 	pre_ch
- 
-	chroot $GrubDir grub-install --recheck --force --no-floppy "$GrubLocation"
+ 	chroot $GrubDir grub-install --recheck --force --no-floppy "$GrubLocation"
 	chroot $GrubDir update-grub2
-
-	post_ch
 else
 	grub-install --recheck --no-floppy --force "$GrubLocation"
 	update-grub
 fi
 
-umount -fl $GrubDir
+post_ch
 killtail
+
 $Info --text="             Instalacion de grub finalizada.             \n" --button=$"gtk-ok:1"
 rm -f /run/$(basename $0).pid
 exit 0
